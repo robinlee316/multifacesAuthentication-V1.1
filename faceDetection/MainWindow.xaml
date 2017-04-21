@@ -1,0 +1,41 @@
+﻿<Window x:Class="faceDetection.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:faceDetection"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="650" Width="926">
+    <Grid x:Name="BackPanel">
+
+
+
+        <!--       <Image x:Name="FacePhoto1" Stretch="Uniform" Margin="16,14,629,411"/>   -->
+        <!--   http://stackoverflow.com/questions/1449276/multline-text-in-a-wpf-button  -->
+
+        <Image x:Name="FacePhoto2" Stretch="Uniform" Margin="374,16,238,408"/>
+        <Button x:Name="BrowseButton1" Height="106"         
+                VerticalAlignment="Bottom" Content="First Step: &#xa; Preparing my &#xa; known friends group ..."                
+                Click="BrowseButton_Click1" Margin="27,0,744,499" Background="#FFEC0606" FontWeight="Bold"/>
+        <Button x:Name="BrowseButton2" Height="94"         
+                VerticalAlignment="Bottom" Content="Upload Photo &#xa; and Authencate..."                
+                Click="BrowseButton_Click2" Margin="27,0,742,401" Background="#FF0C2BB6" FontWeight="Bold"/>
+        <Button x:Name="TrainButton" Height="104"         
+                VerticalAlignment="Bottom" Content=" 2nd Step:&#xa; Train the Group ..."                
+                Click="TrainButton_Click" Margin="177,0,596,500" Background="#FF87EA6A" FontWeight="Bold"/>
+
+        <Button x:Name="TakePhotoButton" Height="95"         
+                VerticalAlignment="Bottom" Content="Plz look at the camera, &#xa; then Take a Photo&#xa; and Authencate..."                
+                Click="TakePhotoButton_Click" Margin="178,0,594,401" Background="#FFF3B50E" FontWeight="Bold"/>
+
+
+
+
+        <TextBox x:Name="myoutputBox" HorizontalAlignment="Left" Height="381" TextWrapping="Wrap" Text="General Information" VerticalAlignment="Top" Width="867" Background="#FFB9B91D" Margin="28,226,0,0" FontWeight="Bold"/>
+
+
+
+
+
+    </Grid>
+</Window>
