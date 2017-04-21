@@ -678,7 +678,6 @@ namespace faceDetection
 				i = i + 1;
 			}
 
-			myoutputBox.Text += p_personName + " has  "; myoutputBox.Text += i; myoutputBox.Text += " photos  \n";
 			myoutputBox.Text += "***"+ p_personName + " has  "; myoutputBox.Text += i; myoutputBox.Text += " photos  \n";
 
 
