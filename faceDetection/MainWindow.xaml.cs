@@ -17,7 +17,7 @@ using Emgu.CV.UI;
 
 
 // This example is from https://www.microsoft.com/cognitive-services/en-us/face-api/documentation/Tutorials/FaceAPIinCSharpTutorial
-
+// Version 1.4
 
 
 namespace faceDetection
@@ -517,21 +517,54 @@ namespace faceDetection
 			var mybitmap = viewer.Image.Bitmap;
 
 
+
+
+
+
+
 			var strangerPhotoPath = @"C:\TestPhotos\SingleImage\temp.jpg";
 
+            // Delete a file by using File class static method...
+            if (System.IO.File.Exists(strangerPhotoPath))
+            {
+                // Use a try block to catch IOExceptions, to
+                // handle the case of the file already being
+                // opened by another process.
+                try
+                {
+                    System.IO.File.Delete(strangerPhotoPath);
+                }
+                catch (System.IO.IOException ef)
+                {
+                    myoutputBox.Text += ef.Message + "File could not be removed";
+                    return;
+                }
+            }
+
+
+            // save a copy and get the path
+            mybitmap.Save(strangerPhotoPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+            // successful saving the photo to that location
 
 
 
-			// save a copy and get the path
-			mybitmap.Save(strangerPhotoPath, System.Drawing.Imaging.ImageFormat.Jpeg);
-			// successful saving the photo to that location
+            // Set up to Display the photo
+            Uri fileUri = new Uri(strangerPhotoPath);
+            BitmapImage bitmapSource = new BitmapImage();
+
+            bitmapSource.BeginInit();
+            bitmapSource.CacheOption = BitmapCacheOption.None;
+            bitmapSource.UriSource = fileUri;
+            bitmapSource.EndInit();
+
+
+            //////// Display the Photo to the screen here
+            FacePhoto2.Source = bitmapSource;
 
 
 
-
-
-			// Convert the photo to Stream and detect to Getting the faceID from API
-			using (Stream imageFileStream = File.OpenRead(strangerPhotoPath))
+            // Convert the photo to Stream and detect to Getting the faceID from API
+            using (Stream imageFileStream = File.OpenRead(strangerPhotoPath))
 			{
 
 				Face[] faces = await faceServiceClient.DetectAsync(imageFileStream, true, true);
@@ -585,7 +618,7 @@ namespace faceDetection
 							}
 							else
 							{
-								myoutputBox.Text += "*** Sorry, I dont know you. *** \n";
+								myoutputBox.Text += "*** For the other person, Sorry, I dont know you. *** \n";
 							}
 
 
@@ -618,22 +651,7 @@ namespace faceDetection
 
 			}   // End Using Stream.
 
-			// Delete a file by using File class static method...
-			if (System.IO.File.Exists(strangerPhotoPath))
-			{
-				// Use a try block to catch IOExceptions, to
-				// handle the case of the file already being
-				// opened by another process.
-				try
-				{
-					System.IO.File.Delete(strangerPhotoPath);
-				}
-				catch (System.IO.IOException ef)
-				{
-					myoutputBox.Text += ef.Message + "File could not be removed";
-					return;
-				}
-			}
+
 
 
 
