@@ -40,10 +40,14 @@ namespace faceDetection
 
 		public static readonly string personGroupId = Guid.NewGuid().ToString();
 
-		/// <summary>
-		/// Gets group name
-		/// </summary>
-		public string GroupName
+        // for use in the TakePhotoButton_Click method. Allow to delete photo only when this application start time.
+        public bool deletephoto = true;
+
+
+        /// <summary>
+        /// Gets group name
+        /// </summary>
+        public string GroupName
 		{
 			get
 			{
@@ -500,54 +504,56 @@ namespace faceDetection
 		}        //  ---------  End BrowseButton_Click2   ------------------
 
 
-		public async void TakePhotoButton_Click(object sender, RoutedEventArgs e)
-		{
+        public async void TakePhotoButton_Click(object sender, RoutedEventArgs e)
+        {
 
-			//  sample from  http://www.emgu.com/wiki/index.php/Camera_Capture_in_7_lines_of_code
-			//         Capture capture = new Capture(); //create a camera captue
-			//        Bitmap image = capture.QueryFrame().Bitmap; //take a picture
-
-
-			ImageViewer viewer = new ImageViewer(); //create an image viewer
-			Capture capture = new Capture(); //create a camera captue
-
-			viewer.Image = capture.QueryFrame(); //draw the image obtained from camera
-			viewer.ShowDialog(); //show the image viewer
-
-			var mybitmap = viewer.Image.Bitmap;
+            //  sample from  http://www.emgu.com/wiki/index.php/Camera_Capture_in_7_lines_of_code
+            //         Capture capture = new Capture(); //create a camera captue
+            //        Bitmap image = capture.QueryFrame().Bitmap; //take a picture
 
 
-
-
-
-
-
-			var strangerPhotoPath = @"C:\TestPhotos\SingleImage\temp.jpg";
-
-            // Delete a file by using File class static method...
-            if (System.IO.File.Exists(strangerPhotoPath))
+            // Initialize 
+            FacePhoto2.Source = null;
+   //         myoutputBox.Text += deletephoto + "\n";
+            if (deletephoto)   //  For this session,to start, clean up the folder so that no temp*.jpg files remain
             {
-                // Use a try block to catch IOExceptions, to
-                // handle the case of the file already being
-                // opened by another process.
-                try
-                {
-                    System.IO.File.Delete(strangerPhotoPath);
-                }
-                catch (System.IO.IOException ef)
-                {
-                    myoutputBox.Text += ef.Message + "File could not be removed";
-                    return;
-                }
-            }
+                    string DeleteThis = "temp";
+                    string[] Files = Directory.GetFiles(@"C:\TestPhotos\SingleImage");
+
+                    foreach (string file in Files)
+                    {
+                        if (file.ToUpper().Contains(DeleteThis.ToUpper()))
+                        {
+                            File.Delete(file);
+                        }
+                    }
+
+                    deletephoto = false;
+
+            }  // if deletephoto
+               //  **** End Initialize  *****
+
+
+            ImageViewer viewer = new ImageViewer(); //create an image viewer
+            Capture capture = new Capture(); //create a camera captue
+
+            viewer.Image = capture.QueryFrame(); //draw the image obtained from camera
+            viewer.ShowDialog(); //show the image viewer
+            var mybitmap = viewer.Image.Bitmap;
+
+
+            //   string filesToDelete = @"C:\TestPhotos\SingleImage\temp*.jpg";   // Only delete jpg files containing "tmp" in their filenames
+
+            //      var strangerPhotoPath = @"C:\TestPhotos\SingleImage\temp.jpg";
+            var strangerPhotoPath = @"C:\TestPhotos\SingleImage\temp" + DateTime.Now.ToFileTime() + ".jpg";
+
 
 
             // save a copy and get the path
             mybitmap.Save(strangerPhotoPath, System.Drawing.Imaging.ImageFormat.Jpeg);
             // successful saving the photo to that location
 
-
-
+            /******/
             // Set up to Display the photo
             Uri fileUri = new Uri(strangerPhotoPath);
             BitmapImage bitmapSource = new BitmapImage();
@@ -561,7 +567,7 @@ namespace faceDetection
             //////// Display the Photo to the screen here
             FacePhoto2.Source = bitmapSource;
 
-
+           /******/
 
             // Convert the photo to Stream and detect to Getting the faceID from API
             using (Stream imageFileStream = File.OpenRead(strangerPhotoPath))
@@ -621,51 +627,51 @@ namespace faceDetection
 								myoutputBox.Text += "*** For the other person, Sorry, I dont know you. *** \n";
 							}
 
+        //                mybitmap.Dispose();
 
-
-					}   //outer for loop
+                    }   //outer for loop
 
 
 				}   // Try block
 				catch
 				{
-					capture.Stop(); mybitmap.Dispose();
-					myoutputBox.Text += "Partial Face is not allowed,  Full Face Please";
+            //        capture.Stop(); mybitmap.Dispose();
+                    myoutputBox.Text += "Partial Face is not allowed,  Try Full Face Please";
 					myoutputBox.Text += "\n * ============================================================ \n";
-				}
 
-				//             capture.Pause();
+                }
 
-				capture.Stop(); capture.Stop(); mybitmap.Dispose();
+                //            capture.Pause();
+
+            //    capture.Stop(); capture.Stop(); mybitmap.Dispose();
+                capture.Dispose();
 
 
-				myoutputBox.Text += "* Thank you. The End. \n";
+                myoutputBox.Text += "* Thank you. The End. \n";
 				myoutputBox.Text += "\n * ============================================================ \n";
 
-				//             TakePhotoButton.IsEnabled = false;
+
+                //             TakePhotoButton.IsEnabled = false;
+
+
+
+            }   // End Using Stream.
+            
 
 
 
 
-
-
-			}   // End Using Stream.
-
+        }
 
 
 
-
-		}
-
-
-
-		/// <summary>
-		/// Define a person into the  group
-		/// </summary>
-		/// <param name="groupId"></param>
-		/// <param name="personName"></param>9
-		/// <param name="imagesPath"></param>
-		public async void _addPerson(string p_personName, string p_friendImageDir, string p_personGroupId)
+        /// <summary>
+        /// Define a person into the  group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="personName"></param>9
+        /// <param name="imagesPath"></param>
+        public async void _addPerson(string p_personName, string p_friendImageDir, string p_personGroupId)
 		{
 
 			//             string l_friendImageDir = "\"" + p_friendImageDir + "\"";
