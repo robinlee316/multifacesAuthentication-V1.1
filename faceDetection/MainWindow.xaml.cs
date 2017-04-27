@@ -16,8 +16,15 @@ using Emgu.CV;
 using Emgu.CV.UI;
 
 
+//Revision History
+// Version 2.0   same as Version 1.5
+// Version 1.5   In taking a snaphshot, created timestamped photos and clean them  up when app start
+// Version 1.4   Taking a snapshot. fixing some crash by disabling the takephoto button
+// 
+
+
+
 // This example is from https://www.microsoft.com/cognitive-services/en-us/face-api/documentation/Tutorials/FaceAPIinCSharpTutorial
-// Version 1.4
 
 
 namespace faceDetection
