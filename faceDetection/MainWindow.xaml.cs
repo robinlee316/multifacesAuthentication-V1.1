@@ -17,6 +17,7 @@ using Emgu.CV.UI;
 
 
 //Revision History
+// Version 2.1   TakePhotoButton_Click: clear the output window first before showing the result.
 // Version 2.0   same as Version 1.5
 // Version 1.5   In taking a snaphshot, created timestamped photos and clean them  up when app start
 // Version 1.4   Taking a snapshot. fixing some crash by disabling the takephoto button
@@ -520,6 +521,9 @@ namespace faceDetection
 
 
             // Initialize 
+
+            myoutputBox.Text = "General Information Status: \n";
+
             FacePhoto2.Source = null;
    //         myoutputBox.Text += deletephoto + "\n";
             if (deletephoto)   //  For this session,to start, clean up the folder so that no temp*.jpg files remain
