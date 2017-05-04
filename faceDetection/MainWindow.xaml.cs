@@ -1,4 +1,20 @@
-﻿using System;
+﻿//Revision History
+// Version 2.2   Change to use another implementation of Camera method. Now you can see the image first and then capture
+//               Reference http://easywebcam.codeplex.com/
+//               added the file : WebCam_Capture.dll, webcam.cs and helper.cs
+// Version 2.1   TakePhotoButton_Click: clear the output window first before showing the result.
+// Version 2.0   same as Version 1.5
+// Version 1.5   In taking a snaphshot, created timestamped photos and clean them  up when app start
+// Version 1.4   Taking a snapshot. fixing some crash by disabling the takephoto button
+// Version 1.3   Lots of crash. Found the subscription key expired and caused the API not working.
+
+
+
+// This example is from https://www.microsoft.com/cognitive-services/en-us/face-api/documentation/Tutorials/FaceAPIinCSharpTutorial
+
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,20 +28,24 @@ using System.IO;
 using Microsoft.ProjectOxford.Face;
 using Microsoft.ProjectOxford.Face.Contract;
 
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+
+
+
 using Emgu.CV;
 using Emgu.CV.UI;
 
-
-//Revision History
-// Version 2.1   TakePhotoButton_Click: clear the output window first before showing the result.
-// Version 2.0   same as Version 1.5
-// Version 1.5   In taking a snaphshot, created timestamped photos and clean them  up when app start
-// Version 1.4   Taking a snapshot. fixing some crash by disabling the takephoto button
-// 
+using WPFCSharpWebCam;   //RL added
 
 
 
-// This example is from https://www.microsoft.com/cognitive-services/en-us/face-api/documentation/Tutorials/FaceAPIinCSharpTutorial
 
 
 namespace faceDetection
@@ -69,14 +89,15 @@ namespace faceDetection
 		// New Subscription Key April 19,2017
 		static FaceServiceClient faceServiceClient = new FaceServiceClient("0a61f1f97a7a45fd99327cc919c5d5ee");
 
+        WebCam webcam; //RL added
 
 
-		#endregion Fields
+        #endregion Fields
 
 
-		#region Methods
+        #region Methods
 
-		public MainWindow()
+        public MainWindow()
 		{
 			InitializeComponent();
 
@@ -84,8 +105,9 @@ namespace faceDetection
 			BrowseButton2.IsEnabled = false;
 			TakePhotoButton.IsEnabled = false;
 			TrainButton.IsEnabled = false;
+            capturePhotoButton.IsEnabled = false;
 
-			myoutputBox.Text += " Status: \n";
+            myoutputBox.Text += " Status: \n";
 			myoutputBox.Text += "* ============================================================ \n";
 
 
@@ -93,245 +115,29 @@ namespace faceDetection
 			myoutputBox.Text += "\n";
 
 
-		}
-		// Robin Added :Now you are ready to call the Face API from your application.
+            // initialize the WebCam
+            webcam = new WebCam();  //RL added
+            webcam.InitializeWebCam(ref cameraShot);  //RL added
 
 
-		/// <summary>
-		//////////////  
-		///  Button click triggers Create a group, add friends to that group, bind photos to each person
-		/// </summary>
-		// --------- Robin Added for the _Click -----------------
-		public async void BrowseButton_Click1(object sender, RoutedEventArgs e)
+
+
+
+        }
+        // Robin Added :Now you are ready to call the Face API from your application.
+
+
+        /// <summary>
+        //////////////  
+        ///  Button click triggers Create a group, add friends to that group, bind photos to each person
+        /// </summary>
+        // --------- Robin Added for the _Click -----------------
+        public async void BrowseButton_Click1(object sender, RoutedEventArgs e)
 		{
 
-			// ======================================================================================================================
-
-			/*
-                        // Decalare Variables 
-                        bool groupExists = false;
-
-                        // Below is to open a Dialog to get the file name, pop up the dialog box: openDlg.ShowDialog(this);
-                        // Eventually skip the open dialog, and just go read the files directly
-                        var openDlg = new Microsoft.Win32.OpenFileDialog();
-
-                        openDlg.Filter = "JPEG Image(*.jpg)|*.jpg";
-                        bool? result = openDlg.ShowDialog(this);
-
-                        if (!(bool)result)
-                        {
-                            return;
-                        }
-
-                        */
-
-
-			/*
-                        // Step 1 : getting those photos directories and its photo
-                        // hard code the root folder for all image sub folder, it starts in this folder and search down :
-                        //                C:\TestPhotos\SingleImage
-                        // store the file name
-                        string filePath = openDlg.FileName;    // filePath is the image file name, I want to skip this method
-
-                        // example to get its folder name
-                        FileInfo fInfo = new FileInfo(filePath);
-                        String FolderName = fInfo.Directory.Name;
-
-
-
-                        //  example to get the Full path of that file
-                        String tmprootFolderName = System.IO.Path.GetDirectoryName(filePath);  // this is the root folder
-                        System.IO.DirectoryInfo rootFolderName = new System.IO.DirectoryInfo(tmprootFolderName);  // this is the root folder
-
-
-                        myoutputBox.Text += "Folder Name = "+ FolderName + "      File Name = "+ filePath+ " \n";
-                        myoutputBox.Text += "Root Folder Name = " + tmprootFolderName + "   File Name = " + filePath + " \n";
-            */
-
-			/*
-                        //////////////////////  group creation
-
-                        // Step 2 : Test whether the group already exists
-                        try
-                        {
-                            myoutputBox.Text += "* Request: GroupID : " + GroupName + " will be used for build person database. \n       Checking whether group " + GroupName + " exists...\n";
-
-                            await faceServiceClient.GetPersonGroupAsync(GroupName);
-
-                            groupExists = true;
-                            myoutputBox.Text += "* Response: Group " + GroupName + " exists. \n";
-                        }
-                        catch (FaceAPIException ex)
-                        {
-                            if (ex.ErrorCode != "PersonGroupNotFound")
-                            {
-                                myoutputBox.Text += "* Response: " + ex.ErrorCode + " : " + ex.ErrorMessage + "\n";
-                                return;
-                            }
-                            else
-                            {
-                                myoutputBox.Text += "* Response: GroupID " + GroupName + " does not exist before. \n";
-                            }
-                        }
-
-                        //  Well, if that GroupID already exist, first Delete it
-                        if (groupExists)
-                        {
-                            myoutputBox.Text += "* Response: GroupID " + GroupName + " exists before. We are deleting it to start a new Group ID\n";
-                            await faceServiceClient.DeletePersonGroupAsync(GroupName);
-                        }
-
-                        else   // group not exist, use the new groupId to create the new group, usually this is the case.
-                        {
-                            // Call create person group REST API
-                            // Create person group API call will failed if group with the same name already exists
-                            myoutputBox.Text += "* Request: Creating group with GroupID  " + GroupName + " \n";
-                            try
-                            {
-                                await faceServiceClient.CreatePersonGroupAsync(GroupName, GroupName);
-                                myoutputBox.Text += "* Response: Success. Group ID " + GroupName + " created \n";
-                            }
-                            catch (FaceAPIException ex)
-                            {
-                                myoutputBox.Text += "* Response: " + ex.ErrorCode + " : " + ex.ErrorMessage + "\n";
-
-                                return;
-                            }
-
-                            ////////////////////// End  group creation
-                        }
-
-
-            */
-
-
-			/****************
-
-                        // ======================================================================================================================
-                        //            myoutputBox.Text += " A Moment Please ...    \n";
-
-
-                        // Create an empty person group
-                        //          string personGroupId = "myfriends";
-
-                        // Define WongChiMan
-
-
-                                  CreatePersonResult friend1 = await faceServiceClient.CreatePersonAsync(
-                                      // Id of the person group that the person belonged to
-                                      personGroupId,
-                                      // Name of the person
-                                      "Wong Chi Man"
-                                  );
-
-
-                                  // Define WongSumWai and TsangChiWai in the same way
-                                  // Define Wong Sum Wing
-
-
-                                  CreatePersonResult friend2 = await faceServiceClient.CreatePersonAsync(
-                                      // Id of the person group that the person belonged to
-                                      personGroupId,
-                                      // Name of the person
-                                      "Wong Sum Wing"
-                                  );
-
-                                  // Define TsangChiWai
-
-                                  CreatePersonResult friend3 = await faceServiceClient.CreatePersonAsync(
-                                      // Id of the person group that the person belonged to
-                                      personGroupId,
-                                      // Name of the person
-                                      "Tsang Chi Wai"
-                                  );
-
-                                  // Define Robin
-
-                                  CreatePersonResult friend4 = await faceServiceClient.CreatePersonAsync(
-                                      // Id of the person group that the person belonged to
-                                      personGroupId,
-                                      // Name of the person
-                                      "Robin"
-                                  );
-
-                       //           myoutputBox.Text += " There are 4 friends I know:    \n" ;
-
-
-                                  // Directory contains image files of WongChiMan
-
-                                  const string friend1ImageDir = @"C:\TestPhotos\SingleImage\WongChiMan\";
-
-                                  foreach (string imagePath in Directory.GetFiles(friend1ImageDir, "*.jpg"))
-                                  {
-                                      using (Stream s = File.OpenRead(imagePath))
-                                      {
-                                          // Detect faces in the image and add to Anna
-                                          await faceServiceClient.AddPersonFaceAsync(
-                                              personGroupId, friend1.PersonId, s);
-                                      }
-                                  }
-                        //          myoutputBox.Text += " Wong Chi Man,  ";
-
-                                  // Do the same for WongSumWai and TsangChiWai
-
-
-                                  // Directory contains image files of Anna
-
-                                  const string friend2ImageDir = @"C:\TestPhotos\SingleImage\WongSumWai\";
-
-                                  foreach (string imagePath in Directory.GetFiles(friend2ImageDir, "*.jpg"))
-                                  {
-                                      using (Stream s = File.OpenRead(imagePath))
-                                      {
-                                          // Detect faces in the image and add to WongSumWai
-                                          await faceServiceClient.AddPersonFaceAsync(
-                                              personGroupId, friend2.PersonId, s);
-                                      }
-                                  }
-                       //           myoutputBox.Text += " Wong Sum Wing,    ";
-
-
-                                  // Directory contains image files of Anna
-
-                                  const string friend3ImageDir = @"C:\TestPhotos\SingleImage\TsangChiWai\";
-
-                                  foreach (string imagePath in Directory.GetFiles(friend3ImageDir, "*.jpg"))
-                                  {
-                                      using (Stream s = File.OpenRead(imagePath))
-                                      {
-                                          // Detect faces in the image and add to TsangChiWai
-                                          await faceServiceClient.AddPersonFaceAsync(
-                                              personGroupId, friend3.PersonId, s);
-                                      }
-                                  }
-                       //           myoutputBox.Text += " Tsang Chi Wai,    " ;
-
-
-
-                                  // Directory contains image files of Anna
-
-                                  const string friend4ImageDir = @"C:\TestPhotos\SingleImage\Robin\";
-
-                                  foreach (string imagePath in Directory.GetFiles(friend4ImageDir, "*.jpg"))
-                                  {
-                                      using (Stream s = File.OpenRead(imagePath))
-                                      {
-                                          // Detect faces in the image and add to Robin
-                                          await faceServiceClient.AddPersonFaceAsync(
-                                              personGroupId, friend4.PersonId, s);
-                                      }
-                                  }
-                       //           myoutputBox.Text += " Robin     \n";
-
-
-                        ********/
 
 			// Create a Group
 			await faceServiceClient.CreatePersonGroupAsync(personGroupId, "MydearFriends");
-			//           await faceServiceClient.GetPersonGroupAsync(personGroupId);
-			//                   myoutputBox.Text += "* Response: Group ID :" + personGroupId + "  \n";
-
-			//          System.Threading.Thread.Sleep(10000);
 
 			//example to get its folder name
 			FileInfo fInfo = new FileInfo(filePath);
@@ -339,8 +145,6 @@ namespace faceDetection
 
 			String tmprootFolderName = System.IO.Path.GetDirectoryName(filePath);  // this is the root folder
 			System.IO.DirectoryInfo rootFolderName = new System.IO.DirectoryInfo(tmprootFolderName);  // this is the root folder
-																									  //           myoutputBox.Text += "Folder Name = " + FolderName + "      File Name = " + filePath + " \n";
-																									  //           myoutputBox.Text += "Root Folder Name = " + tmprootFolderName +"\n";
 			myoutputBox.Text += " A Moment Please ...    \n";
 
 			myoutputBox.Text += " These are the friends I know:    \n";
@@ -373,7 +177,6 @@ namespace faceDetection
 			BrowseButton1.IsEnabled = false;
 			TrainButton.IsEnabled = true;
 
-			//        myoutputBox.Text += "* Response: Group ID :" + personGroupId + "  \n";
 
 		}        //  ---------  End Robin Added for the BrowseButton_Click1   ------------------
 
@@ -387,7 +190,14 @@ namespace faceDetection
 		public async void BrowseButton_Click2(object sender, RoutedEventArgs e)
 		{
 
-			var openDlg = new Microsoft.Win32.OpenFileDialog();
+            myoutputBox.Text = "General Information Status: \n";
+
+            // clear the Camera Window
+            cameraShot.Source = null;
+            snapShot.Source = null;
+
+
+            var openDlg = new Microsoft.Win32.OpenFileDialog();
 
 
 			openDlg.Filter = "JPEG Image(*.jpg)|*.jpg";
@@ -414,7 +224,7 @@ namespace faceDetection
 
 
 			//////// Display the Photo to the screen here
-			FacePhoto2.Source = bitmapSource;
+			snapShot.Source = bitmapSource;
 
 
 			///  Verify if he is one of your friend ---> We name this person stranger
@@ -500,7 +310,7 @@ namespace faceDetection
 			// Enable the 2nd button 
 			//            if (friendFaceID1.Length > 0 && StrangerFaceID.Length > 0)
 
-			BrowseButton2.IsEnabled = false;
+		//	BrowseButton2.IsEnabled = false;
 			BrowseButton1.IsEnabled = false;
 
 
@@ -512,7 +322,7 @@ namespace faceDetection
 		}        //  ---------  End BrowseButton_Click2   ------------------
 
 
-        public async void TakePhotoButton_Click(object sender, RoutedEventArgs e)
+        public async void capturePhotoButton_Click(object sender, RoutedEventArgs e)
         {
 
             //  sample from  http://www.emgu.com/wiki/index.php/Camera_Capture_in_7_lines_of_code
@@ -524,8 +334,13 @@ namespace faceDetection
 
             myoutputBox.Text = "General Information Status: \n";
 
-            FacePhoto2.Source = null;
-   //         myoutputBox.Text += deletephoto + "\n";
+
+            // clear the windows
+   //         cameraShot.Source = null;
+           snapShot.Source = null;
+
+
+           //          myoutputBox.Text += deletephoto + "\n";
             if (deletephoto)   //  For this session,to start, clean up the folder so that no temp*.jpg files remain
             {
                     string DeleteThis = "temp";
@@ -542,43 +357,25 @@ namespace faceDetection
                     deletephoto = false;
 
             }  // if deletephoto
-               //  **** End Initialize  *****
+            //  **** End Initialize  *****
 
 
-            ImageViewer viewer = new ImageViewer(); //create an image viewer
-            Capture capture = new Capture(); //create a camera captue
-
-            viewer.Image = capture.QueryFrame(); //draw the image obtained from camera
-            viewer.ShowDialog(); //show the image viewer
-            var mybitmap = viewer.Image.Bitmap;
 
 
-            //   string filesToDelete = @"C:\TestPhotos\SingleImage\temp*.jpg";   // Only delete jpg files containing "tmp" in their filenames
+            // Capture the photo
+            snapShot.Source = cameraShot.Source;
 
-            //      var strangerPhotoPath = @"C:\TestPhotos\SingleImage\temp.jpg";
+
+            // Save the photo
             var strangerPhotoPath = @"C:\TestPhotos\SingleImage\temp" + DateTime.Now.ToFileTime() + ".jpg";
+            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create((BitmapSource)snapShot.Source));
+            encoder.QualityLevel = 100;
 
+            FileStream fstream = new FileStream(strangerPhotoPath, FileMode.Create);
+            encoder.Save(fstream);
+            fstream.Close();
 
-
-            // save a copy and get the path
-            mybitmap.Save(strangerPhotoPath, System.Drawing.Imaging.ImageFormat.Jpeg);
-            // successful saving the photo to that location
-
-            /******/
-            // Set up to Display the photo
-            Uri fileUri = new Uri(strangerPhotoPath);
-            BitmapImage bitmapSource = new BitmapImage();
-
-            bitmapSource.BeginInit();
-            bitmapSource.CacheOption = BitmapCacheOption.None;
-            bitmapSource.UriSource = fileUri;
-            bitmapSource.EndInit();
-
-
-            //////// Display the Photo to the screen here
-            FacePhoto2.Source = bitmapSource;
-
-           /******/
 
             // Convert the photo to Stream and detect to Getting the faceID from API
             using (Stream imageFileStream = File.OpenRead(strangerPhotoPath))
@@ -586,11 +383,6 @@ namespace faceDetection
 
 				Face[] faces = await faceServiceClient.DetectAsync(imageFileStream, true, true);
 
-				//    Face Strangerface = faces.Single();
-				//   var idstranger = Strangerface.FaceId;
-				//    StrangerFaceID = String.Format("{0}", idstranger);
-
-				//               myoutputBox.Text += "Got Your FaceId =" + StrangerFaceID + "\n";
 
 				try
 				{
@@ -638,7 +430,6 @@ namespace faceDetection
 								myoutputBox.Text += "*** For the other person, Sorry, I dont know you. *** \n";
 							}
 
-        //                mybitmap.Dispose();
 
                     }   //outer for loop
 
@@ -646,30 +437,23 @@ namespace faceDetection
 				}   // Try block
 				catch
 				{
-            //        capture.Stop(); mybitmap.Dispose();
                     myoutputBox.Text += "Partial Face is not allowed,  Try Full Face Please";
 					myoutputBox.Text += "\n * ============================================================ \n";
 
                 }
-
-                //            capture.Pause();
-
-            //    capture.Stop(); capture.Stop(); mybitmap.Dispose();
-                capture.Dispose();
 
 
                 myoutputBox.Text += "* Thank you. The End. \n";
 				myoutputBox.Text += "\n * ============================================================ \n";
 
 
-                //             TakePhotoButton.IsEnabled = false;
-
-
 
             }   // End Using Stream.
-            
 
+            webcam.Stop();
+            capturePhotoButton.IsEnabled = false;
 
+            wait20sec();
 
 
         }
@@ -778,7 +562,39 @@ namespace faceDetection
 
 
 		}
-	}
+
+
+
+
+        // Start up the Camera.
+        private void TakePhotoButton_Click(object sender, RoutedEventArgs e)
+        {
+            webcam.Start();  // RL added
+            capturePhotoButton.IsEnabled = true;
+
+
+        }
+
+
+
+
+        private void wait20sec()
+
+        {
+            myoutputBox.Text += "\n * ============ Please wait ================================================ \n";
+
+            for (int i = 1; i < 20; i++)
+            { 
+
+               counter.Text = i +"";
+               System.Threading.Thread.Sleep(1000);
+
+            }
+  //          myoutputBox.Text += "\n * ============================================================ \n";
+
+        }
+
+    }
 
 
 }

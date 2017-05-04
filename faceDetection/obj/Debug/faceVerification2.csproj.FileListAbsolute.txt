@@ -99,3 +99,4 @@ C:\Users\v-role\Desktop\TESTBED\MICROSOFT COGNITIVE-Samples\multifacesAuthentica
 C:\Users\v-role\Desktop\TESTBED\MICROSOFT COGNITIVE-Samples\multifacesAuthentication\faceDetection\obj\Debug\faceDetection.g.resources
 C:\Users\v-role\Desktop\TESTBED\MICROSOFT COGNITIVE-Samples\multifacesAuthentication\faceDetection\obj\Debug\faceDetection.Properties.Resources.resources
 C:\Users\v-role\Desktop\TESTBED\MICROSOFT COGNITIVE-Samples\multifacesAuthentication\faceDetection\obj\Debug\faceVerification2.csproj.GenerateResource.Cache
+C:\Users\v-role\Desktop\TESTBED\MICROSOFT COGNITIVE-Samples\multifacesAuthentication\faceDetection\bin\Debug\WebCam_Capture.dll

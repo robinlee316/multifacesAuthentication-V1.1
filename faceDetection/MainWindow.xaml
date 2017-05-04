@@ -13,25 +13,37 @@
         <!--       <Image x:Name="FacePhoto1" Stretch="Uniform" Margin="16,14,629,411"/>   -->
         <!--   http://stackoverflow.com/questions/1449276/multline-text-in-a-wpf-button  -->
 
-        <Image x:Name="FacePhoto2" Stretch="Uniform" Margin="374,16,238,408"/>
-        <Button x:Name="BrowseButton1" Height="106"         
-                VerticalAlignment="Bottom" Content="First Step: &#xa; Preparing my &#xa; known friends group ..."                
-                Click="BrowseButton_Click1" Margin="27,0,744,499" Background="#FFEC0606" FontWeight="Bold"/>
-        <Button x:Name="BrowseButton2" Height="94"         
+        <Image x:Name="cameraShot" HorizontalAlignment="Left" Height="222" Margin="279,13,0,0" VerticalAlignment="Top" Width="297" OpacityMask="#FF685B06"/>
+        <Image x:Name="snapShot" Stretch="Uniform" Margin="587,16,26,384"/>
+
+
+
+
+        <Button x:Name="BrowseButton1" Height="71"         
+                VerticalAlignment="Bottom" Content="First Step: &#xa;Prepare my known &#xa;friends group ..."                
+                Click="BrowseButton_Click1" Margin="30,0,770,534" Background="#FFEC0606" FontWeight="Bold"/>
+        <Button x:Name="BrowseButton2" Height="75"         
                 VerticalAlignment="Bottom" Content="Upload Photo &#xa; and Authencate..."                
-                Click="BrowseButton_Click2" Margin="27,0,742,401" Background="#FF0C2BB6" FontWeight="Bold"/>
-        <Button x:Name="TrainButton" Height="104"         
+                Click="BrowseButton_Click2" Margin="29,0,768,459" Background="#FF0C2BB6" FontWeight="Bold"/>
+        <Button x:Name="TrainButton" Height="72"         
                 VerticalAlignment="Bottom" Content=" 2nd Step:&#xa; Train the Group ..."                
-                Click="TrainButton_Click" Margin="177,0,596,500" Background="#FF87EA6A" FontWeight="Bold"/>
+                Click="TrainButton_Click" Margin="148,0,650,533" Background="#FF87EA6A" FontWeight="Bold"/>
 
-        <Button x:Name="TakePhotoButton" Height="95"         
-                VerticalAlignment="Bottom" Content="Plz look at the camera, &#xa; then Take a Photo&#xa; and Authencate..."                
-                Click="TakePhotoButton_Click" Margin="178,0,594,401" Background="#FFF3B50E" FontWeight="Bold"/>
-
-
+        <Button x:Name="TakePhotoButton" Height="74"         
+                VerticalAlignment="Bottom" Content="Start camera, &#xa;when ready &#xa;Capture the Photo..."                
+                Click="TakePhotoButton_Click" Margin="30,0,769,382" Background="#FFF3B50E" FontWeight="Bold"/>
 
 
-        <TextBox x:Name="myoutputBox" HorizontalAlignment="Left" Height="381" TextWrapping="Wrap" Text="General Information" VerticalAlignment="Top" Width="867" Background="#FFB9B91D" Margin="28,226,0,0" FontWeight="Bold"/>
+
+        <Button x:Name="capturePhotoButton" Height="74"         
+                VerticalAlignment="Bottom" Content="Capture the Imgae...&#xa;and Authenticate"                
+                Click="capturePhotoButton_Click" Margin="149,0,650,382" Background="#FFAA96A6" FontWeight="Bold"/>
+
+
+
+
+        <TextBox x:Name="myoutputBox" HorizontalAlignment="Left" Height="367" TextWrapping="Wrap" Text="General Information" VerticalAlignment="Top" Width="867" Background="#FFB9B91D" Margin="28,240,0,0" FontWeight="Bold"/>
+        <TextBox x:Name="counter" HorizontalAlignment="Left" Height="216" Margin="647,347,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240" Background="#FFC1C111" FontSize="72"/>
 
 
 
