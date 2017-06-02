@@ -64,9 +64,9 @@ namespace faceDetection
 
 
 
-		//    static FaceServiceClient faceServiceClient = new FaceServiceClient("1566a7b789cf4c39b50b1b306f707c76");
+		//    static FaceServiceClient faceServiceClient = new FaceServiceClient("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 		// New Subscription Key April 19,2017
-		static FaceServiceClient faceServiceClient = new FaceServiceClient("0a61f1f97a7a45fd99327cc919c5d5ee");
+		static FaceServiceClient faceServiceClient = new FaceServiceClient("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
 
 
